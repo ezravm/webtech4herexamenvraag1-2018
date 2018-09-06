@@ -17,5 +17,7 @@
 <h3>
 ${response}
 </h3>
+<br>
+<h2>redis database status over deze joke: </h2> <h3>${redis}</h3>
 </body>
 </html>

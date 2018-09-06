@@ -1,5 +1,7 @@
 package edu.ap.spring.controller;
 
+import edu.ap.spring.redis.RedisService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,8 +21,15 @@ import org.json.JSONObject;
 @Scope("session")
 public class JokeController {
 
+    private RedisService service;
+
+    @Autowired
+    public void setRedisService(RedisService service) {
+        this.service = service;
+    }
+
+
     private HttpURLConnection con = null;
-    public static final String REQUEST_METHOD = "POST";
 
 
     public JokeController() {
@@ -62,7 +72,23 @@ public class JokeController {
        }
 
 
+       String pattern = "joke:" + responseString +":*";
+        Set<String> keys = service.keys(pattern);
+        if (keys.size() == 0) {
+            service.setKey("joke:" + responseString, "");
+            System.out.println("toegevoegd");
+            model.put("redis","joke toegevoegd aan de redis database");
+        }
+        else {
+            System.out.println("bestaat al!");
+            model.put("redis","joke bestaat al in de redis database");
+        }
+
+
+
        model.put("response",responseString);
+
+
 
 
        return "joke" ;
